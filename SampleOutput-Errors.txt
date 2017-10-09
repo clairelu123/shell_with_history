@@ -1,0 +1,38 @@
+**********************
+Sample output: Errors
+**********************
+
+
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> cd notehun
+Invalid directory.
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> cd thoaenu eo oeu oe u   
+Invalid directory.
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ntahoeunthao
+ntahoeunthao: Unknown command.
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> hoet the h ehtoun 
+hoet: Unknown command.
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> echo Just testing
+Just testing
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !!
+echo Just testing
+Just testing
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !oops
+SHELL: Unknown history command.
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> history
+1	cd notehun
+2	cd thoaenu eo oeu oe u
+3	ntahoeunthao
+4	hoet the h ehtoun 
+5	echo Just testing
+6	echo Just testing
+7	history
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+1	cd notehun
+2	cd thoaenu eo oeu oe u
+3	ntahoeunthao
+4	hoet the h ehtoun 
+5	echo Just testing
+6	echo Just testing
+7	history
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> exit
+brian@ubuntu:~/cmpt300/SVN/2015-1 Spring/as2-Shell$ 

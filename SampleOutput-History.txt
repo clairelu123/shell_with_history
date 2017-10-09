@@ -1,0 +1,140 @@
+**********************
+Sample output: History
+**********************
+
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !!
+SHELL: Unknown history command.
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !0
+SHELL: Unknown history command.
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !1
+SHELL: Unknown history command.
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> history
+1	history
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+1	history
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !!
+history
+1	history
+2	history
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !1
+history
+1	history
+2	history
+3	history
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ls
+gmon.out  shell    shell.o    shell_sol.c
+Makefile  shell.c  shell_sol  shell_sol.o
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !!
+ls
+gmon.out  shell    shell.o    shell_sol.c
+Makefile  shell.c  shell_sol  shell_sol.o
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+1	history
+2	history
+3	history
+4	ls
+5	ls
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ls &
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> gmon.out  shell    shell.o    shell_sol.c
+Makefile  shell.c  shell_sol  shell_sol.o
+  
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> 
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> 
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !!
+ls &
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> gmon.out  shell    shell.o    shell_sol.c
+Makefile  shell.c  shell_sol  shell_sol.o
+
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> 
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> 
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+1	history
+2	history
+3	history
+4	ls
+5	ls
+6	ls &
+7	ls &
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> cat /proc/uptime
+443532.91 1759811.59
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> !!  
+cat /proc/uptime
+443539.61 1759830.53
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+1	history
+2	history
+3	history
+4	ls
+5	ls
+6	ls &
+7	ls &
+8	cat /proc/uptime
+9	cat /proc/uptime
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> cat /proc/version
+Linux version 3.13.0-44-generic (buildd@lamiak) (gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1) ) #73-Ubuntu SMP Tue Dec 16 00:22:43 UTC 2014
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+1	history
+2	history
+3	history
+4	ls
+5	ls
+6	ls &
+7	ls &
+8	cat /proc/uptime
+9	cat /proc/uptime
+10	cat /proc/version
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> cat /proc/cmdline
+BOOT_IMAGE=/boot/vmlinuz-3.13.0-44-generic root=UUID=37fc423b-ce79-4f9d-b149-59502584873d ro find_preseed=/preseed.cfg auto noprompt priority=critical locale=en_US quiet
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+2	history
+3	history
+4	ls
+5	ls
+6	ls &
+7	ls &
+8	cat /proc/uptime
+9	cat /proc/uptime
+10	cat /proc/version
+11	cat /proc/cmdline
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> history
+3	history
+4	ls
+5	ls
+6	ls &
+7	ls &
+8	cat /proc/uptime
+9	cat /proc/uptime
+10	cat /proc/version
+11	cat /proc/cmdline
+12	history
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> ^C
+3	history
+4	ls
+5	ls
+6	ls &
+7	ls &
+8	cat /proc/uptime
+9	cat /proc/uptime
+10	cat /proc/version
+11	cat /proc/cmdline
+12	history
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> 
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> 
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> pwd
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell
+/home/brian/cmpt300/SVN/2015-1 Spring/as2-Shell> cd /proc
+/proc> pwd
+/proc
+/proc> ^C
+6	ls &
+7	ls &
+8	cat /proc/uptime
+9	cat /proc/uptime
+10	cat /proc/version
+11	cat /proc/cmdline
+12	history
+13	pwd
+14	cd /proc
+15	pwd

@@ -6,9 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include "history.h"
 
 #define COMMAND_LENGTH 1024
 #define NUM_TOKENS (COMMAND_LENGTH / 2 + 1)
+#define HISTORY_DEPTH 10
+
 
 
 /**
@@ -118,10 +123,57 @@ int main(int argc, char* argv[])
 			write(STDOUT_FILENO, tokens[i], strlen(tokens[i]));
 			write(STDOUT_FILENO, "\n", strlen("\n"));
 		}
-		if (in_background) {
-			write(STDOUT_FILENO, "Run in background.", strlen("Run in background."));
+
+		//build in command exit
+		if (strcmp(tokens[0], "exit") == 0) {
+			return 0;
 		}
 
+		//built-in command pwd
+		if (strcmp(tokens[0], "pwd") == 0){
+			char cwd[COMMAND_LENGTH];
+			getcwd(cwd, sizeof(cwd));
+			write(STDOUT_FILENO, cwd, strlen(cwd));
+		}
+
+		//built-in command cd
+		if (strcmp(tokens[0], "cd") == 0){
+			if (chdir(tokens[1]) != 0)
+			{
+				write(STDOUT_FILENO, "Path change failed\n", strlen("Path change failed\n"));
+			}
+			else
+			{
+				write(STDOUT_FILENO, "Path changed\n", strlen("Path changed\n"));
+			}
+		}
+
+
+		if (in_background) {
+			write(STDOUT_FILENO, "Run in background.\n", strlen("Run in background.\n"));
+		}
+
+		int pid, exitstatus;
+		pid = fork();
+		switch (pid) {
+			case -1:
+				perror("fork failed");
+				exit(1);
+			case 0:
+				printf("CHILD: current pid= %d, parent pid = %d, fpid= %d\n",getpid(), getppid(), pid );//debug purpose
+				execvp(tokens[0], tokens);
+				perror("execvp failed");
+				exit(1);
+			default:
+				printf("PARENT: current pid= %d, parent pid = %d, fpid= %d\n",getpid(), getppid(), pid );//debug purpose
+				if (!in_background) {
+					while(waitpid(-1, &exitstatus, 0) != pid)
+						;
+					write(STDOUT_FILENO, "child exited\n", strlen("child exited\n"));
+				}
+		}
+		while( waitpid(-1, NULL, WNOHANG) > 0 )
+			;
 		/**
 		 * Steps For Basic Shell:
 		 * 1. Fork a child process
@@ -130,7 +182,6 @@ int main(int argc, char* argv[])
 		 *    child to finish. Otherwise, parent loops back to
 		 *    read_command() again immediately.
 		 */
-
 	}
 	return 0;
 }
