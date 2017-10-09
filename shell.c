@@ -6,16 +6,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "history.h"
+// #include "history.h"
 
 #define COMMAND_LENGTH 1024
 #define NUM_TOKENS (COMMAND_LENGTH / 2 + 1)
 #define HISTORY_DEPTH 10
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 
-
+char history[HISTORY_DEPTH][COMMAND_LENGTH];
+int count = 0;
+int index[HISTORY_DEPTH] = {0};
 /**
  * Command Input and Processing
  */
@@ -31,6 +35,53 @@
  *       Ends with a null pointer.
  * returns: number of tokens.
  */
+
+/* HISTORY FUNCTION */
+void add_history(const char *buff)
+{
+
+  if ( count < HISTORY_DEPTH )
+  {
+    strcpy(history[count], buff);
+
+    // if (in_background)
+    // {
+    //   history[count][i+1] = "&";
+    // }
+    index[count] = count;
+    count++;
+
+  }
+
+  else
+  {
+    int i = 0;
+    for (i = 0; i < HISTORY_DEPTH -1; i++) {
+      strcpy(history[i], history[i+1]);
+      index[i] = index[i+1];
+    }
+
+    strcpy(history[HISTORY_DEPTH-1], buff);
+    index[HISTORY_DEPTH-1] = count;
+
+    count++;
+  }
+}
+
+void print_history()
+{
+	char indext[10];
+  int j = 0;
+	int y = MIN(count, HISTORY_DEPTH);
+	for (j = 0; j < y; j++) {
+		sprintf(indext, "%d", index[j]);
+		write(STDOUT_FILENO, indext, strlen(indext));
+		write(STDOUT_FILENO, "\t", strlen("\t"));
+		write(STDOUT_FILENO, history[j], strlen(history[j]));
+		write(STDOUT_FILENO, "\n", strlen("\n"));
+	}
+}
+
 int tokenize_command(char *buff, char *tokens[])
 {
 	int token_count = 0;
@@ -88,6 +139,10 @@ void read_command(char *buff, char *tokens[], _Bool *in_background)
 		buff[strlen(buff) - 1] = '\0';
 	}
 
+	if (buff[0] != '!' && buff[0] != '\0'){
+		add_history(buff);
+	}
+
 	// Tokenize (saving original command string)
 	int token_count = tokenize_command(buff, tokens);
 	if (token_count == 0) {
@@ -108,6 +163,7 @@ int main(int argc, char* argv[])
 {
 	char input_buffer[COMMAND_LENGTH];
 	char *tokens[NUM_TOKENS];
+
 	while (true) {
 
 		// Get command
@@ -124,7 +180,14 @@ int main(int argc, char* argv[])
 			write(STDOUT_FILENO, "\n", strlen("\n"));
 		}
 
+		//history function debug
+		// write(STDOUT_FILENO, "   input_buffer: ", strlen("   input_buffer: "));
+		// write(STDOUT_FILENO, input_buffer, strlen(input_buffer));
+		// write(STDOUT_FILENO, "\n", strlen("\n"));
+    // add_history(input_buffer);
+		print_history();
 		//build in command exit
+		// assert(!in_background);
 		if (strcmp(tokens[0], "exit") == 0) {
 			return 0;
 		}
@@ -160,20 +223,23 @@ int main(int argc, char* argv[])
 				perror("fork failed");
 				exit(1);
 			case 0:
-				printf("CHILD: current pid= %d, parent pid = %d, fpid= %d\n",getpid(), getppid(), pid );//debug purpose
+				// printf("CHILD: current pid= %d, parent pid = %d, fpid= %d\n",getpid(), getppid(), pid );//debug purpose
+				write(STDOUT_FILENO, "child begin\n", strlen("child begin\n"));
 				execvp(tokens[0], tokens);
 				perror("execvp failed");
 				exit(1);
 			default:
-				printf("PARENT: current pid= %d, parent pid = %d, fpid= %d\n",getpid(), getppid(), pid );//debug purpose
+				// printf("PARENT: current pid= %d, parent pid = %d, fpid= %d\n",getpid(), getppid(), pid );//debug purpose
 				if (!in_background) {
 					while(waitpid(-1, &exitstatus, 0) != pid)
 						;
-					write(STDOUT_FILENO, "child exited\n", strlen("child exited\n"));
+					// write(STDOUT_FILENO, "child exited\n", strlen("child exited\n"));
 				}
-		}
+			}
+
 		while( waitpid(-1, NULL, WNOHANG) > 0 )
 			;
+
 		/**
 		 * Steps For Basic Shell:
 		 * 1. Fork a child process
