@@ -174,3 +174,11 @@ int binarySearch(int a[], int n, int key)
 //
 //
 // }
+
+
+void handle_SIGINT(/* arguments */) {
+  write(STDOUT_FILENO, buffer, strlen(buffer));
+  print_history();
+  write(STDOUT_FILENO, "signal testing\n", strlen("signal testing\n"));
+  exit(0);
+}

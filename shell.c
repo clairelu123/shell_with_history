@@ -9,12 +9,16 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
+#include <signal.h>
 
 #define COMMAND_LENGTH 1024
 #define NUM_TOKENS (COMMAND_LENGTH / 2 + 1)
 #define HISTORY_DEPTH 10
+#define BUFFER_SIZE 50
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
+// history function
 void add_history(const char *buff);
 void retrive_history(int cmdnum, _Bool in_background);
 void cmdexecint(int cmdnum, _Bool in_background);
@@ -22,13 +26,15 @@ void print_history();
 
 int binarySearch(int a[], int n, int key);
 
-void cmdhandler(char* tokens[], _Bool in_background);
-
+//tokenization and processing
 int tokenize_command(char *buff, char *tokens[]);
 void read_command(char *buff, char *tokens[], _Bool *in_background);
 void processcmd(char *buff, char *tokens[], _Bool *in_background);
+void cmdhandler(char* tokens[], _Bool in_background);
+//signal handler
+void handle_SIGINT();
 
-
+static char buffer[BUFFER_SIZE];
 char history[HISTORY_DEPTH][COMMAND_LENGTH];
 int count = 0;
 int index[HISTORY_DEPTH] = {0};
@@ -105,21 +111,49 @@ int main(int argc, char* argv[])
 	char input_buffer[COMMAND_LENGTH];
 	char *tokens[NUM_TOKENS];
 
+	//set up SIGINT
+	struct sigaction handler;
+	handler.sa_handler = handle_SIGINT;
+	handler.sa_flags = 0;
+	sigemptyset(&handler.sa_mask);
+	sigaction(SIGINT, &handler, NULL);
+	// strcpy(buffer,"Ctrl-C!\n");
+	// printf("Program now waiting for Ctrl-C.\n");
+
 	while (true) {
 
 		// Get command
 		// Use write because we need to use read() to work with
 		// signals, and read() is incompatible with printf().
+		char tmp[COMMAND_LENGTH];
+		if (getcwd(tmp, sizeof(tmp)) != NULL)
+		{
+			write(STDOUT_FILENO, tmp, strlen(tmp));
+		}
+		else
+		{
+			write(STDOUT_FILENO, "cwd failed\n", strlen("cwd failed\n"));
+		}
+
 		write(STDOUT_FILENO, "> ", strlen("> "));
 		_Bool in_background = false;
+
 		read_command(input_buffer, tokens, &in_background);
 
-		// DEBUG: Dump out arguments:
+		if(strlen(input_buffer) == 0)
+		{
+			continue;
+		}
+
 		for (int i = 0; tokens[i] != NULL; i++) {
 			write(STDOUT_FILENO, "   Token: ", strlen("   Token: "));
 			write(STDOUT_FILENO, tokens[i], strlen(tokens[i]));
 			write(STDOUT_FILENO, "\n", strlen("\n"));
 		}
+		cmdhandler(tokens, in_background);
+
+		// DEBUG: Dump out arguments:
+
 
 		//history function debug
 		// write(STDOUT_FILENO, "   input_buffer: ", strlen("   input_buffer: "));
@@ -151,7 +185,6 @@ int main(int argc, char* argv[])
 		// 		write(STDOUT_FILENO, "Path changed\n", strlen("Path changed\n"));
 		// 	}
 		// }
-		cmdhandler(tokens, in_background);
 
 		// if (in_background) {
 		// 	write(STDOUT_FILENO, "Run in background.\n", strlen("Run in background.\n"));
@@ -177,9 +210,6 @@ int main(int argc, char* argv[])
 		// 			// write(STDOUT_FILENO, "child exited\n", strlen("child exited\n"));
 		// 		}
 		// 	}
-
-		while( waitpid(-1, NULL, WNOHANG) > 0 )
-			;
 
 		/**
 		 * Steps For Basic Shell:
@@ -238,10 +268,16 @@ void read_command(char *buff, char *tokens[], _Bool *in_background)
 	// Read input
 	int length = read(STDIN_FILENO, buff, COMMAND_LENGTH-1);
 
-	if (length < 0) {
+	if (length < 0 && (errno != EINTR)) {
 		perror("Unable to read command from keyboard. Terminating.\n");
 		exit(-1);
 	}
+
+	if (length < 0 && (errno == EINTR)) {
+		perror("Read failed. Terminating.\n");
+		exit(-1);
+	}
+
 
 	// Null terminate and strip \n.
 	buff[length] = '\0';
@@ -364,7 +400,7 @@ void retrive_history(int cmdnum, _Bool in_background)
 
 void cmdexecint(int cmdnum, _Bool in_background)
 {
-	write(STDOUT_FILENO, "start cmdexecint\n", strlen("start cmdexecint\n"));
+	// write(STDOUT_FILENO, "start cmdexecint\n", strlen("start cmdexecint\n"));
   char cmdbuff[COMMAND_LENGTH];
   char *tokens[NUM_TOKENS];
 
@@ -383,7 +419,7 @@ void cmdexecint(int cmdnum, _Bool in_background)
 		write(STDOUT_FILENO, "not valie pos\n", strlen("not valie pos\n"));
 	}
 
-	printf("pos is %d\n", pos );
+	// printf("pos is %d\n", pos );
 
   strcpy(cmdbuff, history[pos]);
 
@@ -408,7 +444,7 @@ int binarySearch(int a[], int n, int key)
     while(low<= high){
         int mid = (low + high)/2;
         int midVal = a[mid];
-				printf("mid val is %d\n", midVal );
+				// printf("mid val is %d\n", midVal );
         if(midVal<key)
             low = mid + 1;
         else if(midVal>key)
@@ -464,8 +500,8 @@ void cmdhandler(char* tokens[], _Bool in_background)
       if (strcmp(tokens[0], "!!") == 0)
       {
 				write(STDOUT_FILENO, "!! received\n", strlen("!! received\n"));
-				printf("count is %d\n", count );
-        retrive_history(count-1, in_background);
+				// printf("count is %d\n", count );
+        retrive_history(count, in_background);
       }
 
       else
@@ -474,8 +510,8 @@ void cmdhandler(char* tokens[], _Bool in_background)
         char tmp[COMMAND_LENGTH];
         for (int i = 0; i < strlen(tokens[0]) - 1; i++) {
           tmp[i] = tokens[0][i+1];
-					write(STDOUT_FILENO, "in loop\n", strlen("in loop\n"));
-					printf("%c\n",tmp[i] );
+					// write(STDOUT_FILENO, "in loop\n", strlen("in loop\n"));
+					// printf("%c\n",tmp[i] );
         }
 
         tmp[strlen(tokens[0]) - 1] = '\0';
@@ -517,6 +553,17 @@ void cmdhandler(char* tokens[], _Bool in_background)
 						;
 					// write(STDOUT_FILENO, "child exited\n", strlen("child exited\n"));
 				}
+				while( waitpid(-1, NULL, WNOHANG) > 0 )
+					;
 			}
+			// while( waitpid(-1, NULL, WNOHANG) > 0 )
+			// 	;
 	}
+}
+
+void handle_SIGINT(/* arguments */) {
+  write(STDOUT_FILENO, buffer, strlen(buffer));
+  print_history();
+  write(STDOUT_FILENO, "signal testing\n", strlen("signal testing\n"));
+  exit(0);
 }
