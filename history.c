@@ -1,4 +1,9 @@
-#include "history.h"
+// #include "history.h"
+// #include <stdio.h>
+// #include <stdbool.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <unistd.h>
 
 void add_history(const char *buff)
 {
@@ -104,38 +109,68 @@ int binarySearch(int a[], int n, int key)
     return -1;
 }
 
-void cmdhandler(char* tokens[], _Bool in_background)
-{
-  //built-in command exit
-  if (strcmp(tokens[0], "exit") == 0) {
-    return 0;
-  }
-
-  //built-in command pwd
-  if (strcmp(tokens[0], "pwd") == 0){
-    char cwd[COMMAND_LENGTH];
-    getcwd(cwd, sizeof(cwd));
-    write(STDOUT_FILENO, cwd, strlen(cwd));
-  }
-
-  //built-in command cd
-  if (strcmp(tokens[0], "cd") == 0){
-    if (chdir(tokens[1]) != 0)
-    {
-      write(STDOUT_FILENO, "Path change failed\n", strlen("Path change failed\n"));
-    }
-    else
-    {
-      write(STDOUT_FILENO, "Path changed\n", strlen("Path changed\n"));
-    }
-  }
-
-  if (strcmp(tokens[0], "history") == 0)
-  {
-    print_history();
-  }
-
-  if (strcmp(tokens[0]))
-
-
-}
+// void cmdhandler(char* tokens[], _Bool in_background)
+// {
+//   //built-in command exit
+//   if (strcmp(tokens[0], "exit") == 0) {
+//     return 0;
+//   }
+//
+//   //built-in command pwd
+//   if (strcmp(tokens[0], "pwd") == 0){
+//     char cwd[COMMAND_LENGTH];
+//     getcwd(cwd, sizeof(cwd));
+//     write(STDOUT_FILENO, cwd, strlen(cwd));
+//   }
+//
+//   //built-in command cd
+//   if (strcmp(tokens[0], "cd") == 0){
+//     if (chdir(tokens[1]) != 0)
+//     {
+//       write(STDOUT_FILENO, "Path change failed\n", strlen("Path change failed\n"));
+//     }
+//     else
+//     {
+//       write(STDOUT_FILENO, "Path changed\n", strlen("Path changed\n"));
+//     }
+//   }
+//
+//   if (strcmp(tokens[0], "history") == 0)
+//   {
+//     print_history();
+//   }
+//
+//   // history internal command !! and !n
+//   if (tokens[0][0] == '!')
+//   {
+//     if (count == 0)
+//     {
+//       write(STDOUT_FILENO, "NO HISTORY COMMAND\n", strlen("NO HISTORY COMMAND\n"));
+//       return;
+//     }
+//     else
+//     {
+//       if (strcmp(tokens[0], "!!") == 0)
+//       {
+//         retrive_history(count);
+//       }
+//
+//       else
+//       {
+//         char tmp[COMMAND_LENGTH];
+//         for (int i = 0; i < strlen(tokens[0] - 1); i++) {
+//           tmp[i] = tokens[0][i+1];
+//         }
+//
+//         tmp[strlen(tokens[0]) - 1] = '\0';
+//
+//         int cpos = atoi(tmp);
+//
+//         retrive_history(cpos);
+//
+//       }
+//     }
+//   }
+//
+//
+// }

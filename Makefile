@@ -13,7 +13,8 @@ all: shell
 # % matches all (like * in a command)
 # $< is the source file (.c file)
 %.o : %.c
-	$(CC) -c $(CCFLAGS) $<
+	$(CC) -c  $(CCFLAGS) $<
+
 
 
 
@@ -22,6 +23,7 @@ shell: shell.o
 
 # shell_sol: shell_sol.o
 # 	$(CC) -o shell_sol shell_sol.o $(CCFLAGS)
+
 
 clean:
 	# rm -f core *.o shell shell_sol
